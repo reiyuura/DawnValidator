@@ -124,9 +124,9 @@ async def main():
     headers = create_headers(TOKEN)
 
     while True:
-        await fetch_points(headers)
         await ping_server(headers)
-        await asyncio.sleep(500)  # Delay before the next loop iteration
+        await fetch_points(headers)
+        await asyncio.sleep(620)  # Delay before the next loop iteration
 
 if __name__ == "__main__":
     asyncio.run(main())

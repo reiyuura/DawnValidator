@@ -30,13 +30,13 @@ def prompt_for_env_variables():
     # Prompt for TOKEN
     token = os.getenv("TOKEN")
     if not token:
-        token = input("Please enter your Token: ")
+        token = input("Please enter your Dawn Token: ")
         inputs.append(f"TOKEN={token}")
 
     # Prompt for TELEGRAM_TOKEN
     telegram_token = os.getenv("TELEGRAM_TOKEN")
     if not telegram_token:
-        telegram_token = input("Please enter your Telegram Token: ")
+        telegram_token = input("Please enter your Telegram Bot Token: ")
         inputs.append(f"TELEGRAM_TOKEN={telegram_token}")
 
     # Prompt for CHAT_ID

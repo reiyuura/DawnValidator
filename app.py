@@ -36,7 +36,7 @@ def prompt_for_env_variables():
     # Prompt for TELEGRAM_TOKEN
     telegram_token = os.getenv("TELEGRAM_TOKEN")
     if not telegram_token:
-        telegram_token = input("Please enter your Telegram Token: ")
+        telegram_token = input("Please enter your Telegram Bot Token: ")
         inputs.append(f"TELEGRAM_TOKEN={telegram_token}")
 
     # Prompt for CHAT_ID
@@ -94,15 +94,22 @@ async def fetch_points(headers):
         # Log to console with color and timestamp
         logging.info(f"\n{Fore.GREEN}{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Fetching points...\n{Fore.YELLOW}{log_message}")
 
-        # Send log message to Telegram
-        await telegram_logger.send_message("Fetching points: \n" + log_message)
-
+        # Send log message to Telegram (dengan pengecekan jika terjadi error)
+        try:
+            await telegram_logger.send_message("Fetching points: \n" + log_message)
+        except Exception as e:
+            logging.error(f"{Fore.RED}{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Failed to send log to Telegram: {e}")
+    
         return total_points  # Return total points for later use
 
     except requests.exceptions.RequestException as e:
         logging.error(f"\n{Fore.RED}{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Error fetching points: {e}")
-        # Send error message to Telegram
-        await telegram_logger.send_message(f"Error fetching points: {e}")
+        # Send error message to Telegram (dengan pengecekan jika terjadi error)
+        try:
+            await telegram_logger.send_message(f"Error fetching points: {e}")
+        except Exception as e:
+            logging.error(f"{Fore.RED}{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Failed to send error log to Telegram: {e}")
+
         return 0  # Return 0 points on error
 
 # Function to ping the server
@@ -111,12 +118,18 @@ async def ping_server(headers):
         response = requests.get(PING_URL, headers=headers, verify=False)
         response.raise_for_status()
         logging.info(f"\n{Fore.GREEN}{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Ping successful. \nServer response: \n{response.text}")
-        # Send success message to Telegram
-        await telegram_logger.send_message(f"Ping successful. Server response: {response.text}")
+        # Send success message to Telegram (dengan pengecekan jika terjadi error)
+        try:
+            await telegram_logger.send_message(f"Ping successful. Server response: {response.text}")
+        except Exception as e:
+            logging.error(f"{Fore.RED}{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Failed to send ping log to Telegram: {e}")
     except requests.exceptions.RequestException as e:
         logging.error(f"\n{Fore.RED}{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Ping failed: {e}")
-        # Send error message to Telegram
-        await telegram_logger.send_message(f"Ping failed: {e}")
+        # Send error message to Telegram (dengan pengecekan jika terjadi error)
+        try:
+            await telegram_logger.send_message(f"Ping failed: {e}")
+        except Exception as e:
+            logging.error(f"{Fore.RED}{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Failed to send error log to Telegram: {e}")
 
 # Main execution flow
 async def main():
@@ -126,9 +139,13 @@ async def main():
     while True:
         await ping_server(headers)
         await fetch_points(headers)
-        await asyncio.sleep(620)  # Delay before the next loop iteration
+        await asyncio.sleep(300)  # Delay before the next loop iteration
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except Exception as e:
+        logging.error(f"{Fore.RED}{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Critical error in main: {e}")
+
 
 ### Thanks to @rainlovy99 for methode
